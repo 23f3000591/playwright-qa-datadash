@@ -1,29 +1,26 @@
 const { chromium } = require('playwright');
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
   let grandTotal = 0;
 
   for (let seed = 89; seed <= 98; seed++) {
-    const url = `https://YOUR_TARGET_URL?seed=${seed}`;
     console.log(`Opening Seed ${seed}`);
 
-    await page.goto(url);
+    await page.goto(`https://sanand0.github.io/tdsdata/js_table/?seed=${seed}`, {
+      waitUntil: "load"
+    });
 
-    // Get ALL table cells
     const numbers = await page.$$eval("table td", cells =>
       cells
-        .map(td => parseFloat(td.innerText.trim()))
+        .map(c => Number(c.textContent.trim()))
         .filter(n => !isNaN(n))
     );
 
-    const pageSum = numbers.reduce((a, b) => a + b, 0);
-
-    console.log(`Seed ${seed} Sum:`, pageSum);
-
-    grandTotal += pageSum;
+    const sum = numbers.reduce((a, b) => a + b, 0);
+    grandTotal += sum;
   }
 
   console.log("FINAL TOTAL:", grandTotal);
